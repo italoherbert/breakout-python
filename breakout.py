@@ -69,9 +69,6 @@ class Game:
     mensagem_cor = "white"
     show_message_flag = False
 
-    xxx = 0
-    yyy = 0
-
     def __init__( self, screen, messageFont, chancesFont, dim ):           
         self.screen = screen
         self.messageFont = messageFont
@@ -100,7 +97,7 @@ class Game:
         self.fim = False
         self.pause = False
 
-        self.chances = 3
+        self.chances = 10
         self.status = JogoStatus.JOGANDO
 
         self.quadrados = []
@@ -132,8 +129,10 @@ class Game:
 
         self.ganhou_ou_perdeu_flag = False
 
-    def exec_it( self ):        
-        self.move_bolinha()
+    def exec_it( self ):  
+        bolinha_presa = self.verifica_se_bolinha_presa()
+        if ( bolinha_presa == False ):
+            self.move_bolinha()
 
         if ( self.raquete_movimento_tipo == RaqueteMovimentoTipo.ESQUERDA ):
             self.move_raquete_para_esquerda()
@@ -144,7 +143,7 @@ class Game:
         if ( colisao_embaixo == True ):
             self.chances-=1
 
-        if ( self.chances > 0 ):
+        if ( self.chances > 0 and bolinha_presa == False ):
             self.verifica_e_trata_colisao_com_raquete()
             self.verifica_e_trata_colisao_com_quadradinho() 
 
@@ -166,6 +165,29 @@ class Game:
                 if ( quad == True ):
                     cont+=1
         return cont
+    
+    def verifica_se_bolinha_presa( self ):
+        bx1 = self.bolinha_x - self.bolinha_raio
+        by1 = self.bolinha_y - self.bolinha_raio
+        bx2 = self.bolinha_x + self.bolinha_raio
+        by2 = self.bolinha_y + self.bolinha_raio
+        braio = self.bolinha_raio        
+
+        rx = self.raquete_x
+        ry = self.raquete_y
+        rw = self.raquete_largura
+        rh = self.raquete_altura
+
+        rx1 = rx
+        ry1 = ry
+        rx2 = rx + rw
+        ry2 = ry + rh
+
+        tw = self.tabuleiro_w
+
+        return ( ( ( by1 >= ry1 and by1 < ry2 ) or ( by2 >= ry1 and by2 < ry2 ) ) and
+                ( ( rx1 < 2*braio and bx2 < 2*braio ) or ( rx2 > tw-2*braio and bx1 > tw-2*braio ) ) )
+
 
     def verifica_e_trata_colisao_com_raquete( self ):
         bx1 = self.bolinha_x - self.bolinha_raio
@@ -190,22 +212,14 @@ class Game:
             if ( houve_colisao == True ):                 
                 pontos = [ [bx1, by1], [bx1, by2], [bx2, by1], [bx2, by2] ]     
                 x, y = self.calcula_ponto_mais_proximo( pontos, (rx1+rx2)/2, (ry1+ry2)/2 )
-           
-                colidiu_com_bico = False #self.trata_se_houver_colisao_com_bico( x, y, rx1, ry1, rx2, ry2 )
+
+                colidiu_com_bico = self.trata_se_houver_colisao_com_bico( x, y, rx1, ry1, rx2, ry2 )
                 
                 if ( colidiu_com_bico == True ):
                     self.raquete_ativada = False
                 else:
-                    colisao_tipo = self.calcula_colisao_tipo( x, y, rx1, ry1, rx2, ry2 )                                                        
-                    self.ajusta_angulo_apos_colisao( colisao_tipo )               
-
-                    dx1 = self.abs( x - rx1 )
-                    dx2 = self.abs( x - rx2 )
-                    dy1 = self.abs( y - ry1 )
-                    dy2 = self.abs( y - ry2 )
-                    
-                    print( colisao_tipo, dx1, dx2, dy1, dy2 )
-
+                    colisao_tipo = self.calcula_raquete_colisao_tipo( bx1, by1, bx2, by2, rx1, ry1, rx2, ry2 )                                                        
+                    self.ajusta_angulo_apos_colisao( colisao_tipo )                                   
                     self.raquete_ativada = False
                     
                     if ( ColisaoTipo.BAIXO ):
@@ -215,6 +229,42 @@ class Game:
                         elif ( bx >= rx+(rw*2/3) and bx <= rx+rw ):
                             if ( self.bolinha_angulo < math.pi + math.pi*5/6 ):
                                 self.bolinha_angulo = self.to0x360( self.bolinha_angulo + self.bolinha_alteracao_angulo )                        
+
+
+
+    def calcula_raquete_colisao_tipo( self, bx1, by1, bx2, by2, rx1, ry1, rx2, ry2 ):
+        x1 = ( bx1 + bx2 ) / 2
+        y1 = ( by1 + by2 ) / 2
+
+        rcx = ( rx1 + rx2 ) / 2
+        rcy = ( ry1 + ry2 ) / 2
+
+        pontos = [ [ bx1, by1 ], [ bx1, by2 ], [ bx2, by1 ], [ bx2, by2 ] ]
+        x2, y2 = self.calcula_ponto_mais_proximo( pontos, rcx, rcy )
+
+        esq_x = rx1
+        esq_y = self.calcula_y( esq_x, x1, y1, x2, y2 )
+
+        dir_x = rx2
+        dir_y = self.calcula_y( dir_x, x1, y1, x2, y2 )
+
+        if ( self.bolinha_angulo >= 0 and self.bolinha_angulo <= math.pi/2 ):
+            if ( esq_y >= ry1 and esq_y <= ry2 ):
+                return ColisaoTipo.FRENTE
+            else: return ColisaoTipo.BAIXO
+        elif ( self.bolinha_angulo >= math.pi/2 and self.bolinha_angulo <= math.pi ):
+            if ( dir_y >= ry1 and dir_y <= ry2 ):
+                return ColisaoTipo.TRAZ
+            else: return ColisaoTipo.BAIXO
+        elif ( self.bolinha_angulo >= math.pi and self.bolinha_angulo <= math.pi*3/2 ):
+            if ( dir_y >= ry1 and dir_y <= ry2 ):
+                return ColisaoTipo.TRAZ
+            else: return ColisaoTipo.CIMA
+        elif ( self.bolinha_angulo >= math.pi*3/2 and self.bolinha_angulo < 2*math.pi ):
+            if ( esq_y >= ry1 and esq_y <= ry2 ):
+                return ColisaoTipo.FRENTE
+            else: return ColisaoTipo.CIMA
+
 
 
     def verifica_e_trata_colisao_com_quadradinho( self ):
@@ -247,13 +297,32 @@ class Game:
                     qx2 = qx+qw
                     qy2 = qy+qh
 
-                    colisao_tipo = self.calcula_colisao_tipo( x, y, qx1, qy1, qx2, qy2 )                    
+                    colisao_tipo = self.calcula_quadradinho_colisao_tipo( x, y, qx1, qy1, qx2, qy2 )                    
                     self.ajusta_angulo_apos_colisao( colisao_tipo )
 
                     self.raquete_ativada = True
                     colidiu = True
             i+=1        
         
+
+    def calcula_quadradinho_colisao_tipo( self, x, y, x1, y1, x2, y2 ):
+        dx1 = self.abs( x - x1 )
+        dx2 = self.abs( x - x2 )
+        dy1 = self.abs( y - y1 )
+        dy2 = self.abs( y - y2 )
+
+        dists = [ dx1, dx2, dy1, dy2 ]
+        colisoes_tipos = [ ColisaoTipo.FRENTE, ColisaoTipo.TRAZ, ColisaoTipo.BAIXO, ColisaoTipo.CIMA ]
+
+        j = 0
+        min = 9999999
+        for i in range( 0, len( dists ) ):
+            if ( dists[ i ] < min ):                
+                j = i
+                min = dists[ i ]
+
+        return colisoes_tipos[ j ]
+    
 
     def trata_se_houver_colisao_com_bico( self, x, y, rx1, ry1, rx2, ry2 ):       
         pontos = [ [rx1, ry1], [rx1, ry2], [rx2, ry1], [rx2, ry2] ]
@@ -293,9 +362,6 @@ class Game:
 
         x, y = self.calcula_ponto_mais_proximo( pontos1, xc, yc )
 
-        self.xxx = x
-        self.yyy = y
-
         if ( x >= x3 and x <= x4 and y >= y3 and y <= y4 ):
             return True
         else:
@@ -320,26 +386,24 @@ class Game:
                 min = dist
 
         return pontos[ j ][ 0 ], pontos[ j ][ 1 ]
+
+
+    def calcula_y( self, x, x1, y1, x2, y2 ):
+        if ( x1 == x2 ):
+            if ( y1 < y2 ):
+                return y1
+            return y2
+        else: 
+            cang = (y2-y1)/(x2-x1)
+            return cang * ( x-x1 ) + y1
+        
+    def calcula_x( self, y, x1, y1, x2, y2 ):
+        if ( x1 == x2 ):
+            return x1
+        else: 
+            cang = (y2-y1)/(x2-x1)
+            return ( y - y1 + cang*x1 ) / cang
     
-
-    def calcula_colisao_tipo( self, x, y, x1, y1, x2, y2 ):
-        dx1 = self.abs( x - x1 )
-        dx2 = self.abs( x - x2 )
-        dy1 = self.abs( y - y1 )
-        dy2 = self.abs( y - y2 )
-
-        dists = [ dx1, dx2, dy1, dy2 ]
-        colisoes_tipos = [ ColisaoTipo.FRENTE, ColisaoTipo.TRAZ, ColisaoTipo.BAIXO, ColisaoTipo.CIMA ]
-
-        j = 0
-        min = 9999999
-        for i in range( 0, len( dists ) ):
-            if ( dists[ i ] < min ):                
-                j = i
-                min = dists[ i ]
-
-        return colisoes_tipos[ j ]
-
     def verifica_e_trata_colisao_com_paredes( self ):
         if ( self.bolinha_x - self.bolinha_raio < 0 ):
             self.ajusta_angulo_apos_colisao( ColisaoTipo.TRAZ )
@@ -431,13 +495,8 @@ class Game:
         y = self.tabuleiro_y + self.bolinha_y
         r = self.bolinha_raio        
 
-        pygame.draw.rect( self.screen, 'white', (x-r, y-r, r+r, r+r), 1 )
         pygame.draw.circle( self.screen, 'green', (x, y), r )
-
-        xxx = self.tabuleiro_x + self.xxx
-        yyy = self.tabuleiro_y + self.yyy
-        pygame.draw.circle( self.screen, 'red', (xxx, yyy), 1 )
-
+        
 
     def draw_bordas( self ):
         tx = self.tabuleiro_x
@@ -463,9 +522,7 @@ class Game:
     def draw_quadrados( self ):              
         tx = self.tabuleiro_x
         ty = self.tabuleiro_y
-        tw = self.tabuleiro_w
-        th = self.tabuleiro_h
-
+        
         for j in range(0, self.dim):
             for i in range(0, self.quant_quads_na_vertical):
                 if ( self.quadrados[ i ][ j ] == False ):
@@ -554,7 +611,7 @@ chancesFont = pygame.font.SysFont( None, 45 )
 
 game = Game( screen, messageFont, chancesFont, 20 )
 
-it_mult = 1
+it_mult = 10
 it = 0
 
 while game.fim == False:
@@ -585,6 +642,6 @@ while game.fim == False:
         game.draw_game()
         pygame.display.flip()
 
-        clock.tick( 100 )
+        clock.tick( 30 )
 
 pygame.quit()
