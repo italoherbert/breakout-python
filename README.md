@@ -28,13 +28,14 @@ python breakout.py
 Para jogar, basta utilizar as setas do teclado para mover a raquete para a esquerda ou 
 direita e rebater a bolinha na direção dos quadradinhos para destruí-los. O objetivo é 
 destruir todos os quadradinhos! Você tem 5 tentativas que são diminuidas conforme a 
-bolinha atinge a parte de baixo do tabuleiro. Pressione ESC caso queira reiniciar o 
-jogo.
+bolinha atinge a parte de baixo do tabuleiro.
 
 A raquete tem três tipos de direcionamento da bolinha. Se a bolinha acertar a parte de cima 
 da raquete, então, se dividirmos a raquete em três partes, a primeira parte reduz em 15° o 
 ângulo da direção final, a segunda parte apenas rebate na direção final correta e a terceira, 
 aumenta em 15° o ângulo da direção final da bolinha.
+
+Pressione ESC para reiniciar o jogo e ENTER para pausar/continuar.
 
 ## Desafios do desenvolvimento do jogo
 
