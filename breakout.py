@@ -97,7 +97,7 @@ class Game:
         self.fim = False
         self.pause = False
 
-        self.chances = 10
+        self.chances = 5
         self.status = JogoStatus.JOGANDO
 
         self.quadrados = []
@@ -136,15 +136,15 @@ class Game:
             self.move_raquete_para_esquerda()
         elif ( self.raquete_movimento_tipo == RaqueteMovimentoTipo.DIREITA ):
             self.move_raquete_para_direita()
+        
+        colisao_embaixo = self.verifica_e_trata_colisao_com_paredes()
+        if ( colisao_embaixo == True ):
+            self.chances-=1
 
         if ( self.chances > 0 ):            
             bolinha_presa = self.verifica_se_bolinha_presa()
             if ( bolinha_presa == False ):
                 self.verifica_e_trata_colisao_com_raquete()
-
-        colisao_embaixo = self.verifica_e_trata_colisao_com_paredes()
-        if ( colisao_embaixo == True ):
-            self.chances-=1
         
         self.verifica_e_trata_colisao_com_quadradinho() 
 
