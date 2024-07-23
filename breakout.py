@@ -129,23 +129,24 @@ class Game:
 
         self.ganhou_ou_perdeu_flag = False
 
-    def exec_it( self ):  
-        bolinha_presa = self.verifica_se_bolinha_presa()
-        if ( bolinha_presa == False ):
-            self.move_bolinha()
-
+    def exec_it( self ):          
+        self.move_bolinha()
+        
         if ( self.raquete_movimento_tipo == RaqueteMovimentoTipo.ESQUERDA ):
             self.move_raquete_para_esquerda()
         elif ( self.raquete_movimento_tipo == RaqueteMovimentoTipo.DIREITA ):
             self.move_raquete_para_direita()
 
+        if ( self.chances > 0 ):            
+            bolinha_presa = self.verifica_se_bolinha_presa()
+            if ( bolinha_presa == False ):
+                self.verifica_e_trata_colisao_com_raquete()
+
         colisao_embaixo = self.verifica_e_trata_colisao_com_paredes()
         if ( colisao_embaixo == True ):
             self.chances-=1
-
-        if ( self.chances > 0 and bolinha_presa == False ):
-            self.verifica_e_trata_colisao_com_raquete()
-            self.verifica_e_trata_colisao_com_quadradinho() 
+        
+        self.verifica_e_trata_colisao_com_quadradinho() 
 
         if ( self.chances == 0 ):
             if ( self.status == JogoStatus.JOGANDO ):
@@ -187,8 +188,7 @@ class Game:
 
         return ( ( ( by1 >= ry1 and by1 < ry2 ) or ( by2 >= ry1 and by2 < ry2 ) ) and
                 ( ( rx1 < 2*braio and bx2 < 2*braio ) or ( rx2 > tw-2*braio and bx1 > tw-2*braio ) ) )
-
-
+        
     def verifica_e_trata_colisao_com_raquete( self ):
         bx1 = self.bolinha_x - self.bolinha_raio
         by1 = self.bolinha_y - self.bolinha_raio
