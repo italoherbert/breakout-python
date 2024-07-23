@@ -31,6 +31,11 @@ destruir todos os quadradinhos! Você tem 5 tentativas que são diminuidas confo
 bolinha atinge a parte de baixo do tabuleiro. Pressione ESC caso queira reiniciar o 
 jogo.
 
+A raquete tem três tipos de direcionamento da bolinha. Se a bolinha acertar a parte de cima 
+da raquete, então, se dividirmos a raquete em três partes, a primeira parte reduz em 15° o 
+ângulo da direção final, a segunda parte apenas rebate na direção final correta e a terceira, 
+aumenta em 15° o ângulo da direção final da bolinha.
+
 ## Desafios do desenvolvimento do jogo
 
 Um grande desafio desse jogo é determinar a colisão entre a bolinha e as paredes, quadradinhos e 
