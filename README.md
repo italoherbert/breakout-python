@@ -4,4 +4,4 @@ Este jogo produzido em python é uma versão do clássico "breakout". Onde, o ob
 acertar todos os quadradinhos que ficam na parte de cima do tabuleiro com uma bolinha 
 que se movimenta em linha reta e pode ter seu ângulo de direção alterado por uma raquete.
 
-[!jogo em execução](readme-media/video.mp4)
+[![Watch the video](readme-media/exec.png)](readme-media/video.mp4)
