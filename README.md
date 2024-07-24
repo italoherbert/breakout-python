@@ -46,7 +46,7 @@ deve se movimentar em linha reta e o ângulo representa a direção da bolinha q
 com a colisão com algum objeto.
 
 Foi utilizada a equação paramétrica da reta para determinar o trajeto que a bolinha 
-deve percorrer. A equação da reta foi utilizada para determinar o ponto de colisão entre 
+deve percorrer. A equação da reta (não paramétrica) foi utilizada para determinar o ponto de colisão entre 
 a bolinha e a raquete.
 
 ## Considerações finais
