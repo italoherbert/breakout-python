@@ -17,7 +17,8 @@ Para instalar o pygame, basta executar o seguinte comando:
 pip install pygame
 ```
 
-Para rodar o jogo basta navegar até a raiz do projeto e executar:
+Para rodar o jogo basta baixar do repositório e executar o script de nome "breakout.py". Execute do 
+seguinte modo:
 
 ```
 python breakout.py
