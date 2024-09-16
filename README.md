@@ -40,7 +40,7 @@ Pressione ESC para reiniciar o jogo e ENTER para pausar/continuar.
 
 ## Desafios do desenvolvimento do jogo
 
-Um grande desafio desse jogo é determinar a colisão entre a bolinha e as paredes, quadradinhos e 
+Um pequeno desafio desse jogo é determinar a colisão entre a bolinha e as paredes, quadradinhos e 
 raquete do jogo para, dada a ocorrência da colisão, direcionar a bolinha na direção certa. A bolinha 
 deve se movimentar em linha reta e o ângulo representa a direção da bolinha que pode ser alterado 
 com a colisão com algum objeto.
